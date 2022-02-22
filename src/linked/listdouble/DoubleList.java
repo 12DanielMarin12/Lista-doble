@@ -4,23 +4,23 @@ package linked.listdouble;
 //SE PRESENTO UN ERROR CATASTROFICO, NO PODIA IMPLEMENTAR OBJETOS DE LA CASE SI ESTA HEREDABA DE "LinkedList"
 //AUN ASI TODOS LOS METODOS SOLICITADOS ESTAN AQUI.
  
-public class Lisi implements LinkedList{
+public class DoubleList implements LinkedList{
         Node head=null;
 	Node tail=null;
         int cont=0;
 	
-    public Lisi() {
+    public DoubleList() {
             this.head = null;
             this.tail = null;	
     }
 	
-    public Lisi(Object object) {
+    public DoubleList(Object object) {
             this.head = new Node(object);
             this.tail = head;
             cont++;
     }
    
-    //metodo agregado especificamente para poder eliminar pasando un nodo como dato
+    //metodo agregado especificamente para poder eliminar pasando un nodo como dato//modificado
     public boolean add(Node node){
         try {
             if(isEmpty()) {
@@ -38,15 +38,15 @@ public class Lisi implements LinkedList{
 	}
     }
     
-    @Override
+    @Override//modificado
     public boolean add(Object object) {
         try {
             if(isEmpty()) {
-                this.head = new Node(object);
-                this.head.setNext(tail);
+                this.head = new Node(object); 
 	        this.tail = head;
             } else {
                 this.tail.next = new Node(object);
+                this.tail.getNext().setPrevius(this.tail);
 		this.tail = this.tail.next;
             }
             cont++;
@@ -56,7 +56,7 @@ public class Lisi implements LinkedList{
         }
     }
 
-    @Override
+    @Override//modificado
     public boolean add(LinkedListNode node, Object object) {
         try {
             if(isEmpty()){
@@ -104,7 +104,7 @@ public class Lisi implements LinkedList{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
+    @Override//modificado
     public boolean addFirst(Object object) {
         Node nuevo = new Node(object);
         if(isEmpty()){
@@ -114,13 +114,14 @@ public class Lisi implements LinkedList{
             return true;
         }else{            
             nuevo.setNext(head);
-            head = nuevo;
+            head.setPrevius(nuevo);
+            head=nuevo;
             cont++;
             return true;
             }
     }
 
-    @Override
+    @Override//modificado
     public boolean addLast(Object object) {
         Node nuevo = new Node(object);
         if(isEmpty()){
@@ -130,6 +131,7 @@ public class Lisi implements LinkedList{
             return true;
         }else{            
             tail.setNext(nuevo);
+            nuevo.setPrevius(tail);
             tail = nuevo;
             cont++;
             return true;
@@ -143,7 +145,7 @@ public class Lisi implements LinkedList{
     }
  
     public LinkedList clone() {
-        Lisi ListClone = new Lisi();
+        DoubleList ListClone = new DoubleList();
         ListClone.setHead(getHead());
         ListClone.setTail(getTail());
         ListClone.setCont(getCont());            
@@ -248,22 +250,20 @@ public class Lisi implements LinkedList{
         }
     }
 
-    @Override
+    @Override//modificado
     public Object getPrevious(LinkedListNode node) {
         if(isEmpty()){
             return "lista vacia";
         }else{
             Node current = head;
-            int c = 0;
-            if(current.getObject()==node.getObject()){
+            if(current.getPrevius()==null){
                 return "No hay nodos previos al especificado";
             }else{
                 while(current.getNext()!=null){
                     current = current.getNext();
                     if(current.getObject()==node.getObject()){
-                        return "posicion previa al nodo especificado: "+c;
+                        return "posicion previa al nodo especificado: "+ current.getPrevius();
                     }  
-                    c++;   
                 }
                 return false;
             }        
@@ -303,63 +303,64 @@ public class Lisi implements LinkedList{
         return tail;
     }
 
-    @Override
+    @Override//modificado
     public boolean remove(Object object) {
-        if(isEmpty()){
-           return false;
-        }else{
-            Node current = head; 
-            if(current.getObject()==object){
-                if(current.getNext()==null){
-                    head=null;
-                    tail=null;
-                    cont=0;
-                    cont--;
-                    return true;        
-                }else{
-                    head = current.getNext();
-                    cont--;
-                    return true;
-                }                    
-            }
-            while(current.getNext()!=null){
-                if(current.getNext().getObject()==object){
-                    current.setNext(current.getNext().getNext());
-                    cont--;
-                    return true;
-                }
-                current = current.getNext();
-            }
+        if(isEmpty()) {
             return false;
+        }else{
+            Node Current = tail;
+            if(Current.getObject()==object){
+                if(tail.getPrevius()==null){
+                    tail=null;
+                    head=null;
+                }else{
+                    Current.getPrevius().setNext(null);
+                    tail = Current.getPrevius();
+                }
+                cont--;
+                return true;
+            }else{
+                while(Current.getPrevius()!=null){
+                    Current = Current.getPrevius();
+                    if(Current.getObject()==object){
+                        if(Current.getNext()==null)
+                        cont--;
+                        return true;
+                    }
+                }
+            } 
         }
+        return false;
     }
 
-    @Override
+    @Override//modificado
     public boolean remove(LinkedListNode node) {
-        if(isEmpty()){
+        if(isEmpty()) {
             return false;
         }else{
-            Node current = head; 
-            if(current==node){
-                if(current.getNext()==null){
-                    head=null;
+            Node Current = tail;
+            if(Current==node){
+                if(tail.getPrevius()==null){
                     tail=null;
-                    cont=0;
-                    return true;
+                    head=null;
                 }else{
-                    head = current.getNext();
-                    return true;
-                }                    
-            }
-            while(current.getNext()!=null){
-                if(current.getNext()==node){
-                    current.setNext(current.getNext().getNext());
-                    return true;
+                    Current.getPrevius().setNext(null);
+                    tail = Current.getPrevius();
                 }
-                current = current.getNext();
-            }
-            return false;
+                cont--;
+                return true;
+            }else{
+                while(Current.getPrevius()!=null){
+                    Current = Current.getPrevius();
+                    if(Current==node){
+                        if(Current.getNext()==null)
+                        cont--;
+                        return true;
+                    }
+                }
+            } 
         }
+        return false;
     }
 
     @Override
@@ -385,13 +386,13 @@ public class Lisi implements LinkedList{
             return false;
         }else{
             Node current = head;
-            if(current.getObject()==node.getObject()){
+            if(current==node){
                 current.setObject(object);
                 return true;
             }else{
                 while(current.getNext()!=null){
                     current = current.getNext();
-                    if(current.getObject()==node.getObject()){
+                    if(current==node){
                         current.setObject(object);
                         return true;
                     }     
@@ -408,7 +409,7 @@ public class Lisi implements LinkedList{
 
     @Override
     public LinkedList subList(LinkedListNode from, LinkedListNode to) {
-        Lisi nueva = new Lisi();
+        DoubleList nueva = new DoubleList();
         if(isEmpty()){
             return nueva;
         }else{
@@ -455,7 +456,7 @@ public class Lisi implements LinkedList{
 
     @Override
     public LinkedList sort() {
-        Lisi nueva = new Lisi();
+        DoubleList nueva = new DoubleList();
         if(isEmpty()){
             return nueva; 
         }else{
@@ -476,10 +477,10 @@ public class Lisi implements LinkedList{
         if(isEmpty()){
             return "Lista vacia";
         }else{
-            Node Current = head;
+            Node Current = tail;
             M += Current.toString();
-            while(Current.getNext()!=null){
-                Current = Current.getNext();
+            while(Current.getPrevius()!=null){
+                Current = Current.getPrevius();
                 M += Current.toString();
             }
             return M; 
